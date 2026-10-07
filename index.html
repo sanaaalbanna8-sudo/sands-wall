@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sands Tech — الجدار الكامل</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --wall: #1a1410;
+      --ink: #1c1917;
+      --cream: #f6f1e6;
+      --muted: #78716c;
+      --line: rgba(255,255,255,.14);
+      --amber: #fbbf24;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; }
+    body {
+      font-family: "IBM Plex Sans Arabic", "Segoe UI", Tahoma, sans-serif;
+      background:
+        radial-gradient(circle at 12% 0%, rgba(255,236,200,.08), transparent 28%),
+        radial-gradient(circle at 100% 80%, rgba(0,0,0,.45), transparent 36%),
+        repeating-linear-gradient(0deg, rgba(255,255,255,.018) 0 1px, transparent 1px 3px),
+        var(--wall);
+      color: var(--cream);
+      min-height: 100vh;
+    }
+    .ltr { direction: ltr; unicode-bidi: isolate; }
+    .mono { font-family: "IBM Plex Mono", Consolas, monospace; }
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+    :focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+    .wrap { width: min(1440px, calc(100% - 28px)); margin: 0 auto; }
+
+    .top {
+      display: flex; justify-content: space-between; align-items: flex-end; gap: 16px;
+      padding: 22px 0 8px;
+    }
+    .eyebrow { margin: 0; color: #d6d3d1; font-size: 12px; letter-spacing: .04em; }
+    h1 { margin: 4px 0 0; font-size: clamp(28px, 4vw, 44px); line-height: 1.15; }
+    .side-mark { text-align: left; color: #d6d3d1; font-size: 12px; }
+    .side-mark strong { display: block; color: var(--cream); font-size: 13px; letter-spacing: .14em; }
+
+    .originals {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin: 16px 0 8px;
+    }
+    .polaroid {
+      background: #f7f3ea;
+      color: var(--ink);
+      padding: 10px 10px 12px;
+      border-radius: 3px;
+      box-shadow: 0 14px 26px rgba(0,0,0,.38);
+    }
+    .polaroid:nth-child(1) { transform: rotate(-1.2deg); }
+    .polaroid:nth-child(2) { transform: rotate(.7deg); }
+    .polaroid:nth-child(3) { transform: rotate(-.4deg); }
+    .polaroid.is-on { outline: 3px solid var(--amber); }
+    .polaroid img { width: 100%; height: 168px; object-fit: cover; object-position: top; display: block; background: #111; }
+    .polaroid .row { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 8px; }
+    .polaroid h2 { margin: 0; font-size: 14px; }
+    .polaroid p { margin: 2px 0 0; color: #57534e; font-size: 11px; }
+    .ghost, .solid {
+      border-radius: 999px; border: 1px solid #d6d3d1; background: transparent;
+      padding: 4px 10px; font-size: 12px; font-weight: 700;
+    }
+    .solid { background: var(--ink); color: white; border-color: var(--ink); }
+    .zoom {
+      display: block; width: 100%; padding: 0; border: 0; background: transparent;
+    }
+
+    .bar {
+      position: sticky; top: 0; z-index: 30;
+      background: rgba(26,20,16,.94);
+      backdrop-filter: blur(12px);
+      padding: 10px 0 12px;
+      border-bottom: 1px solid var(--line);
+    }
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .chip {
+      border: 1px solid var(--line); background: transparent; color: #f5e6c8;
+      border-radius: 999px; padding: 6px 11px; font-size: 13px; font-weight: 600;
+    }
+    .chip[aria-pressed="true"] { background: var(--amber); color: var(--ink); border-color: var(--amber); }
+    .chip b { font-weight: 700; margin-inline-start: 4px; }
+    .tools { display: flex; gap: 8px; align-items: center; }
+    .tools input {
+      flex: 1; min-width: 0;
+      background: rgba(255,255,255,.06); color: white;
+      border: 1px solid var(--line); border-radius: 999px;
+      padding: 8px 14px;
+    }
+    .tools input::placeholder { color: #a8a29e; }
+    #count { margin: 8px 0 0; color: #d6d3d1; font-size: 13px; }
+
+    .wall {
+      columns: 4 270px;
+      column-gap: 14px;
+      padding: 16px 0 48px;
+      scroll-margin-top: 140px;
+    }
+    .card {
+      break-inside: avoid;
+      margin: 0 0 14px;
+      background: white;
+      color: var(--ink);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 10px 18px rgba(0,0,0,.28);
+      position: relative;
+    }
+    .card:nth-child(6n+1) { transform: rotate(-.7deg); }
+    .card:nth-child(6n+2) { transform: rotate(.55deg); }
+    .card:nth-child(6n+4) { transform: rotate(-.4deg); }
+    .card:nth-child(6n+5) { transform: rotate(.8deg); }
+    .card:hover { transform: rotate(0deg) translateY(-2px); z-index: 2; }
+    .card:nth-child(5n)::before {
+      content: "";
+      position: absolute; top: -7px; inset-inline-start: 22%;
+      width: 54px; height: 14px; z-index: 2;
+      background: rgba(232, 208, 122, .72);
+      transform: rotate(-8deg);
+      pointer-events: none;
+    }
+    .mild { outline: 1px dashed rgba(234, 88, 12, .55); outline-offset: -3px; }
+    .hd { display: flex; gap: 8px; align-items: center; padding: 8px 10px 4px; }
+    .ava {
+      width: 30px; height: 30px; border-radius: 50%; flex: none;
+      display: grid; place-items: center; color: white; font-size: 12px; font-weight: 700;
+    }
+    .who { font-weight: 700; font-size: 13px; line-height: 1.25; }
+    .sub { color: var(--muted); font-size: 11px; line-height: 1.35; }
+    .src {
+      display: inline-block; margin-inline-start: 4px;
+      border-radius: 99px; padding: 0 6px; font-size: 10px; font-weight: 700;
+    }
+    .src-wall { background: #fef3c7; color: #92400e; }
+    .src-feedback { background: #e0f2fe; color: #075985; }
+    .src-love { background: #ffe4e6; color: #9f1239; }
+    .cap { margin: 0; padding: 2px 10px 8px; font-size: 13.5px; line-height: 1.55; }
+    .stat { padding: 0 10px 10px; color: #57534e; font-size: 12px; }
+    .shot {
+      height: 118px; margin: 2px 10px 8px; border-radius: 8px; position: relative;
+    }
+    .shot span, .badge {
+      position: absolute; inset-inline-start: 8px; bottom: 8px;
+      background: rgba(255,255,255,.92); color: var(--ink);
+      font-size: 10px; font-weight: 800; letter-spacing: .04em;
+      padding: 2px 7px; border-radius: 99px;
+    }
+    .ig .hd { box-shadow: inset 0 3px 0 #e1306c; }
+    .story {
+      min-height: 210px; padding: 12px; color: white;
+      display: flex; flex-direction: column; justify-content: space-between; gap: 18px;
+    }
+    .story p { margin: 0; font-size: 20px; font-weight: 700; line-height: 1.35; }
+    .pill {
+      align-self: flex-start; background: rgba(0,0,0,.35);
+      border: 1px solid rgba(255,255,255,.45);
+      border-radius: 99px; padding: 2px 8px; font-size: 12px; font-weight: 700;
+    }
+    .react { padding: 0 10px 10px; color: #57534e; font-size: 12px; }
+    .stars { color: #f59e0b; letter-spacing: 1px; font-size: 14px; }
+    .ghead, .store-top {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 8px 10px 0; font-size: 12px; color: #444;
+    }
+    .rating { font-size: 28px; font-weight: 700; line-height: 1; }
+    .review { border-top: 1px solid #f5f5f4; margin-top: 6px; padding-top: 6px; }
+    .xcard { background: #0f1419; color: #e7e9ea; }
+    .xcard .sub, .xcard .stat { color: #8b98a5; }
+    .xcard .src-wall, .xcard .src-feedback, .xcard .src-love { color: inherit; }
+    .tt-face {
+      min-height: 220px; color: white; position: relative;
+      display: flex; align-items: flex-end; padding: 12px;
+    }
+    .tt-face p { margin: 4px 0 0; font-size: 16px; font-weight: 700; line-height: 1.35; text-shadow: 0 1px 2px rgba(0,0,0,.45); }
+    .tt-side {
+      position: absolute; inset-inline-end: 10px; bottom: 46px;
+      font-size: 12px; text-align: center; font-weight: 700;
+    }
+    .wa { background: #efeae2; }
+    .bar-wa { background: #075e54; color: white; padding: 7px 10px; font-size: 12px; font-weight: 700; }
+    .bar-wa small { display: block; font-weight: 500; opacity: .85; }
+    .bub {
+      margin: 8px; background: white; border-radius: 8px; padding: 7px 8px;
+      font-size: 13px; line-height: 1.45;
+    }
+    .bub.me { background: #d9fdd3; }
+    .bub time { display: block; text-align: left; color: #78716c; font-size: 10px; margin-top: 3px; }
+    .wiki { background: #fffdf6; }
+    .wiki h3 { margin: 10px 10px 0; font-size: 14px; }
+    .empty {
+      break-inside: avoid; column-span: all;
+      padding: 28px 8px; color: #d6d3d1;
+    }
+
+    dialog {
+      width: min(1100px, calc(100vw - 24px));
+      max-height: calc(100vh - 24px);
+      border: 0; padding: 0; background: transparent; color: white;
+    }
+    dialog::backdrop { background: rgba(0,0,0,.82); }
+    dialog img {
+      width: 100%; height: auto; max-height: calc(100vh - 72px);
+      object-fit: contain; border-radius: 8px; display: block; background: #111;
+    }
+    dialog form { display: flex; justify-content: flex-end; margin-bottom: 8px; }
+    dialog button {
+      background: white; color: var(--ink); border: 0; border-radius: 999px;
+      padding: 6px 12px; font-weight: 700;
+    }
+
+    @media (max-width: 800px) {
+      .originals { grid-template-columns: 1fr; }
+      .polaroid, .polaroid:nth-child(n) { transform: none; }
+      .top { flex-direction: column; align-items: flex-start; }
+      .side-mark { text-align: right; }
+      .card, .card:hover { transform: none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .card, .card:hover, .polaroid { transform: none; }
+    }
+    @media print {
+      body { background: white; color: black; }
+      .bar, .zoom, .solid, .ghost, dialog { display: none !important; }
+      .card { break-inside: avoid; box-shadow: none; border: 1px solid #ddd; transform: none !important; }
+      .card::before { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <div>
+        <p class="eyebrow">Instagram · Facebook · Google · TikTok · X · WhatsApp</p>
+        <h1>Sands Tech · الجدار الكامل</h1>
+      </div>
+      <p class="side-mark ltr mono"><strong>WALL / FULL</strong>Sands Tech · Amman</p>
+    </header>
+
+    <section class="originals" aria-label="اللوحات الأصلية">
+      <article class="polaroid" id="pole-wall">
+        <button class="zoom" type="button" data-zoom="media/wall.jpg" data-alt="جدار المراجعات" aria-label="تكبير لوحة جدار المراجعات">
+          <img src="media/wall.jpg" alt="جدار المراجعات: بطاقات إنستغرام وتيك توك وجوجل وواتساب">
+        </button>
+        <div class="row">
+          <div>
+            <h2>جدار المراجعات</h2>
+            <p>اللوحة الأولى · WALL / AUTUMN</p>
+          </div>
+          <button class="solid" type="button" data-board="wall">بطاقاتها</button>
+        </div>
+      </article>
+      <article class="polaroid" id="pole-feedback">
+        <button class="zoom" type="button" data-zoom="media/feedback.jpg" data-alt="آراء الزبائن" aria-label="تكبير لوحة آراء الزبائن">
+          <img src="media/feedback.jpg" alt="لوحة آراء الزبائن: منشورات ومراجعات جوجل وواتساب">
+        </button>
+        <div class="row">
+          <div>
+            <h2>آراء الزبائن</h2>
+            <p>اللوحة الثانية</p>
+          </div>
+          <button class="solid" type="button" data-board="feedback">بطاقاتها</button>
+        </div>
+      </article>
+      <article class="polaroid" id="pole-love">
+        <button class="zoom" type="button" data-zoom="media/love.jpg" data-alt="محبة العملاء" aria-label="تكبير لوحة محبة العملاء">
+          <img src="media/love.jpg" alt="لوحة محبة العملاء: أجهزة وتقييمات ومحادثات">
+        </button>
+        <div class="row">
+          <div>
+            <h2>محبة العملاء</h2>
+            <p>اللوحة الثالثة</p>
+          </div>
+          <button class="solid" type="button" data-board="love">بطاقاتها</button>
+        </div>
+      </article>
+    </section>
+
+    <div class="bar">
+      <div class="tools">
+        <button class="ghost" id="reset" type="button">الكل</button>
+      </div>
+      <div class="chips" id="boardChips"></div>
+      <div class="chips" id="platChips"></div>
+      <p id="count" aria-live="polite"></p>
+    </div>
+
+    <div class="wall" id="wall"></div>
+  </div>
+
+  <dialog id="lightbox">
+    <form method="dialog"><button type="submit">إغلاق</button></form>
+    <img id="lightboxImg" alt="">
+  </dialog>
+
+  <script>
+    var BOARDS = [
+      { k: "all", t: "كل اللوحات" },
+      { k: "wall", t: "جدار المراجعات" },
+      { k: "feedback", t: "آراء الزبائن" },
+      { k: "love", t: "محبة العملاء" }
+    ];
+    var PLATS = [
+      { k: "all", t: "كل المنصات" },
+      { k: "ig", t: "إنستغرام" },
+      { k: "story", t: "ستوري" },
+      { k: "fb", t: "فيسبوك" },
+      { k: "google", t: "جوجل" },
+      { k: "tt", t: "تيك توك" },
+      { k: "x", t: "إكس" },
+      { k: "wa", t: "واتساب" },
+      { k: "wiki", t: "ملاحظات" }
+    ];
+    var BOARD_NAME = { wall: "جدار", feedback: "آراء", love: "محبة" };
+    var HUE = {
+      laptop: "linear-gradient(145deg,#1e293b,#38bdf8)",
+      phone: "linear-gradient(160deg,#312e81,#c4b5fd)",
+      ps5: "linear-gradient(160deg,#0f172a,#22d3ee)",
+      tablet: "linear-gradient(160deg,#134e4a,#5eead4)",
+      watch: "linear-gradient(160deg,#44403c,#fdba74)",
+      headphones: "linear-gradient(160deg,#1e1b4b,#818cf8)",
+      camera: "linear-gradient(160deg,#111827,#94a3b8)",
+      setup: "linear-gradient(165deg,#4c1d95,#fb7185)",
+      store: "linear-gradient(160deg,#0f766e,#fbbf24)",
+      gift: "linear-gradient(160deg,#7c2d12,#fb7185)",
+      keyboard: "linear-gradient(160deg,#44403c,#fdba74)",
+      audio: "linear-gradient(160deg,#134e4a,#5eead4)",
+      bag: "linear-gradient(160deg,#78350f,#fcd34d)",
+      accessories: "linear-gradient(160deg,#1e293b,#94a3b8)",
+      unbox: "linear-gradient(145deg,#312e81,#0ea5e9)"
+    };
+
+    var cards = [
+      { k: "ig", board: "wall", user: "lina.abdoun", sub: "الصويفية · Unboxing", cap: "Unboxing للماك من Sands Tech. التغليف مرتب والـ staff شرح الإعداد قبل ما أطلع. best experience.", stat: "1,284 likes · 96 comments", shot: "unbox", label: "UNBOXING" },
+      { k: "ig", board: "wall", user: "tala.jubeiha", sub: "Review", cap: "السماعة صوتها نظيف. دخلت أشتري ماوس وطلعت بنصيحة صادقة. Service محترم.", stat: "860 likes", shot: "audio", label: "AUDIO" },
+      { k: "ig", board: "wall", user: "sami.khalda", sub: "الزيارة الثالثة", cap: "رجعت أجيب كيبورد. ثالث شراء من نفس الفرع، وسألت إذا في نقاط. قالوا لسّا ما في. الجهاز نفسه نار.", stat: "640 likes", shot: "keyboard", label: "KEYBOARD" },
+      { k: "ig", board: "wall", user: "dana.sweifieh", sub: "Gift wrap", cap: "لفّوا هدية التخرج بورق المحل. تفصيلة صغيرة فرّقت مع أهلي.", stat: "1,102 likes", shot: "gift", label: "GIFT" },
+      { k: "ig", board: "wall", user: "yazan.suwar", sub: "مطابقة للـ Review", cap: "الكيبورد الميكانيكي نفس اللي شفته بالـ Review على تيك توك. ما في مفاجآت ناقصة.", stat: "540 likes", shot: "keyboard", label: "MATCH" },
+      { k: "ig", board: "wall", user: "hassan.marka", sub: "Setup بالمحل", cap: "جابوا الـ iPad وجهّزوه للجامعة قدامي. الـ setup كان جزء من الشراء مش إضافة مدفوعة.", stat: "990 likes", shot: "setup", label: "SETUP" },
+      { k: "ig", board: "wall", user: "rana.abdali", sub: "إكسسوار أصلي", cap: "جلبت صاحبتي اليوم. اشترت شاحن أصلي ودفعت كامل، وما كان في عرض. حبيت أحكي بس.", stat: "410 likes", shot: "accessories", label: "ORIGINAL" },
+      { k: "ig", board: "wall", user: "omar.dabouq", sub: "Feedback", cap: "الجهاز يجنّن. الـ Delivery تأخر يوم، ولو في tracking كان أريح. غير هيك المحل يستاهل.", stat: "220 likes", shot: "laptop", label: "LAPTOP", mild: true },
+
+      { k: "story", board: "wall", user: "maya.rabieh", text: "@SandsTech best store ever", bg: "linear-gradient(165deg,#f97316,#db2777)" },
+      { k: "story", board: "wall", user: "nour.abdoun", text: "my go-to للمحل قبل أي مول", bg: "linear-gradient(165deg,#0f766e,#38bdf8)" },
+      { k: "story", board: "wall", user: "hala.jubeiha", text: "أمس Unboxing للسماعة، اليوم الرف فاضي", bg: "linear-gradient(165deg,#6d28d9,#f472b6)" },
+      { k: "story", board: "wall", user: "karam.khalda", text: "Unboxing night مع Sands", bg: "linear-gradient(165deg,#b45309,#fde68a)", dark: true },
+      { k: "story", board: "wall", user: "leen.suwar", text: "Story Mention: شكراً يا Sands", bg: "linear-gradient(165deg,#1d4ed8,#22d3ee)" },
+      { k: "story", board: "wall", user: "farah.marka", text: "Tip: الشاحن الأصلي غير التقليد من الوزن", bg: "linear-gradient(165deg,#be123c,#fb7185)" },
+
+      { k: "fb", board: "wall", user: "عائلة حداد", sub: "شعور بالامتنان", cap: "فتحنا اللابتوب سوا. شكراً Sands Tech على الصبر بالشرح. أول Unboxing رسمي بالبيت.", react: "186" },
+      { k: "fb", board: "wall", user: "نادي تقنية الجامعة", sub: "Recommendation", cap: "حكينا عن Sands بالجامعة بدون ما يطلبوا. في ناس سألت: في جروب نتبادل فيه tips؟", react: "94" },
+      { k: "fb", board: "wall", user: "ليث عمّاري", sub: "Facebook", cap: "صورت المحل من جوا. الإضاءة مريحة وتقدر تجرّب السماعة قبل الدفع.", react: "73" },
+      { k: "fb", board: "wall", user: "هديل سواق", sub: "Facebook", cap: "خصم الطالب انحسب بدون ما أفاوض. فاتورة مرتبة.", react: "51" },
+      { k: "fb", board: "wall", user: "مها عبدون", sub: "سؤال", cap: "مساء الخير، في Stock من كفر لابتوب 14 إنش؟ إذا في، بمر بكرا.", react: "6", mild: true },
+
+      { k: "google", board: "wall", user: "Ahmad N.", stars: 5, cap: "موظفين يسمعوا قبل ما يبيعوا. خرجت بالقطعة الصح مش بالغالية." },
+      { k: "google", board: "wall", user: "Huda S.", stars: 5, cap: "Review بعد أسبوعين: الجهاز ثابت، والفاتورة والـ warranty card كانوا بالكيس." },
+      { k: "google", board: "wall", user: "Fadi K.", stars: 5, cap: "الجهاز 10/10 والشرح واضح. بس الـ website والـ store والـ story كل واحد معطيني توفر مختلف." },
+      { k: "google", board: "wall", user: "Sara M.", stars: 5, cap: "رجعت أشتري سماعة هدية. تذكروا ذوقي من الزيارة الأولى." },
+      { k: "google", board: "wall", user: "Omar L.", stars: 4, cap: "المحل والـ service ممتازين. التوصيل تأخر يوم واحد فقط.", mild: true },
+
+      { k: "x", board: "wall", user: "yazan.codes", cap: "إذا بدكم محل يشرح الفرق بين القطعتين بدون ضغط: Sands Tech. الـ Review خلص.", stat: "128 reposts" },
+      { k: "x", board: "wall", user: "tala.reads", cap: "قارنت سماعة Sands مع اللي بالمول. نفس القطعة، الفرق الشرح قبل ما أدفع.", stat: "86 likes" },
+      { k: "x", board: "wall", user: "leen.design", cap: "الـ packaging عندهم أنظف من نص المتاجر الإلكترونية اللي جربتها.", stat: "64 likes" },
+      { k: "x", board: "wall", user: "karam.it", cap: "شكر للفريق على تحويل الـ setup لجهاز الجامعة خلال الزيارة.", stat: "41 likes" },
+      { k: "x", board: "wall", user: "noor.orders", cap: "مساء الخير، ممكن رقم الـ tracking لطلب SND-2041؟ يعطيكم العافية.", stat: "3 replies", mild: true },
+
+      { k: "tt", board: "wall", user: "sana.unbox", face: "Honest Review: اشتريت من Sands وما ندمت", stat: "12.4K", shot: "laptop" },
+      { k: "tt", board: "wall", user: "jude.tech", face: "مقطع من جيبي، مش إعلان. لو في تعاون رسمي بكرر", stat: "9.1K", shot: "phone" },
+      { k: "tt", board: "wall", user: "adam.sound", face: "تجربة صوت 20 ثانية. السماعة من عندهم", stat: "7.8K", shot: "audio" },
+      { k: "tt", board: "wall", user: "mira.store", face: "جولة ربع دقيقة داخل الفرع", stat: "6.2K", shot: "store" },
+      { k: "tt", board: "wall", user: "student.setup", face: "سيتاب الجامعة كامل من محل واحد", stat: "15.0K", shot: "setup" },
+
+      { k: "wa", board: "wall", title: "لينا", status: "WhatsApp · Sands Support", messages: [{ me: false, text: "أنا لينا، اشتريت منكم الشهر الماضي. وصل الثاني اليوم والتغليف سليم. شكراً.", time: "10:12" }] },
+      { k: "wa", board: "wall", title: "Sands Support", status: "WhatsApp · Sands Support", messages: [{ me: true, text: "أهلاً، كيف فينا نساعدك؟", time: "14:06" }] },
+      { k: "wa", board: "wall", title: "كرم", status: "WhatsApp · Sands Support", messages: [{ me: false, text: "عملتوا الـ setup بالمحل. ذوق، وبكرر الشراء.", time: "18:02" }] },
+      { k: "wa", board: "wall", title: "Sands Support", status: "WhatsApp · Sands Support", messages: [{ me: true, text: "أهلاً كرم. إذا حاب تعمل Google Review بعد التسليم، الرابط موجود.", time: "18:06" }] },
+      { k: "wa", board: "wall", title: "هدى", status: "WhatsApp · Sands Support", mild: true, messages: [{ me: false, text: "لو سمحتوا، الـ Warranty على الشاشة كم سنة؟ الفاتورة معي.", time: "13:40" }] },
+      { k: "wa", board: "wall", title: "باسل", status: "WhatsApp · Sands Support", mild: true, messages: [{ me: false, text: "طلب SND-2041. ما وصلني tracking update. الشحن لعبدون كم يوم عادة؟", time: "16:05" }] },
+
+      { k: "wiki", board: "wall", title: "قصاصة من صفحة المتجر", cap: "Sands Tech Store · الصويفية · منذ 2019. العنوان وساعات الدوام ظاهرين على الصفحة." },
+      { k: "wiki", board: "wall", title: "لقطة inbox", cap: "لينا 10:12 ← الرد 14:06 · كرم 18:02 ← الرد 18:06 · هدى 13:40: الضمان كم سنة؟ · باسل 16:05: SND-2041 وين الـ tracking؟" },
+
+      { k: "ig", board: "feedback", user: "reham.jordan", sub: "Follow", cap: "شكراً SandsTech على الخدمة الرائعة. Best laptop ever! @SandsTech #Unboxing", stat: "1,248 likes · 56 comments · 12 shares", shot: "laptop", label: "LAPTOP" },
+      { k: "fb", board: "feedback", user: "Omar Alhami", sub: "Sands Tech Store", cap: "وصلني الجهاز اليوم. التغليف ممتاز والخدمة سريعة. شكراً لكم.", react: "242", shot: "phone", label: "PHONE" },
+      { k: "story", board: "feedback", user: "sarah.tech", text: "New Phone from @SandsTech. Love it!", bg: "linear-gradient(165deg,#111827,#6366f1)" },
+      { k: "tt", board: "feedback", user: "tech.jo.reviews", face: "PS5 Unboxing من Sands Tech", cap: "جهاز أصلي وسعر ممتاز", stat: "12.4K", shot: "ps5" },
+      { k: "google", board: "feedback", store: true, rating: "4.8", count: "1,326 reviews", place: "Electronics store · Amman", reviews: [
+        { user: "Lina Haddad", when: "منذ أسبوع", stars: 5, cap: "خدمة ممتازة وأسعار مناسبة والفريق متعاون جداً." },
+        { user: "Mohammad Qasem", when: "منذ أسبوعين", stars: 5, cap: "أفضل محل أجهزة في عمّان. جودة وسرعة بالتعامل." }
+      ]},
+      { k: "ig", board: "feedback", user: "Sands Tech Store", sub: "صورة الفرع", cap: "SANDS TECH", shot: "store", label: "STORE" },
+      { k: "tt", board: "feedback", user: "maya.tech", face: "A new tablet from Sands Tech. Too good!", cap: "أحلى خدمة وأصدق ناس @SandsTech #Tablet #Unboxing", stat: "24.6K", shot: "tablet" },
+      { k: "x", board: "feedback", user: "YazanTech", cap: "Just got my accessories from @SandsTech. Great quality and fast delivery!", stat: "5.1K", shot: "accessories", label: "GEAR" },
+      { k: "ig", board: "feedback", user: "nour.aloudah", sub: "منذ ساعة", cap: "@SandsTech Best Customer Service", shot: "headphones", label: "AUDIO" },
+      { k: "wa", board: "feedback", title: "Customer Support", status: "Sands Tech Store · online", messages: [
+        { me: false, text: "مرحبا، وصلني الطلب اليوم. شكراً كتير الجهاز رائع.", time: "10:43 AM" },
+        { me: true, text: "أهلاً وسهلاً، نشكرك على ثقتك فينا.", time: "10:43 AM" },
+        { me: false, text: "العفو. رح أتعامل معكم دائماً.", time: "10:44 AM" }
+      ]},
+      { k: "ig", board: "feedback", user: "ahmad.alzobi", sub: "تجميعة", cap: "تجميعة PC ممتازة. أداء ممتاز وخدمة احترافية.", stat: "892 likes", shot: "setup", label: "SETUP" },
+      { k: "story", board: "feedback", user: "leen.tech", text: "New Setup @SandsTech", bg: "linear-gradient(165deg,#4c1d95,#38bdf8)" },
+      { k: "x", board: "feedback", user: "RanaTech", cap: "SandsTech has amazing offers right now. Highly recommended!", stat: "2.1K" },
+      { k: "fb", board: "feedback", user: "Dina Al Masri", sub: "Sands Tech Store", cap: "تعامل محترم جداً. أخذت سماعات ذكية وكاميرا، والخدمة كانت ممتازة من البداية للنهاية.", react: "33 تعليقاً · 5 مشاركات" },
+      { k: "google", board: "feedback", user: "Ahmed R.", when: "منذ 3 أيام", stars: 5, cap: "Great prices, original products, and very helpful staff. Highly recommended!" },
+      { k: "google", board: "feedback", user: "Rula M.", when: "منذ أسبوع", stars: 5, cap: "Amazing service and fast delivery! I got my laptop in 2 days. Thank you Sands Tech!" },
+      { k: "wa", board: "feedback", title: "Sands Tech Support", status: "Business account", messages: [
+        { me: false, text: "سلام عليكم.", time: "11:20 AM" },
+        { me: true, text: "وعليكم السلام، حالياً متوفر وسعدنا بخدمتك.", time: "11:21 AM" },
+        { me: false, text: "كم مدة التوصيل لعمان؟", time: "11:21 AM" },
+        { me: true, text: "عادة خلال 1-2 يوم، وسنرسل لك رقم التتبع.", time: "11:23 AM" }
+      ]},
+      { k: "fb", board: "feedback", user: "Karim Abu Zaid", sub: "في Sands Tech Store", cap: "Always my first choice for tech! Great team and amazing prices.", react: "178 · 12 comments · 3 shares", shot: "store", label: "STORE" },
+      { k: "tt", board: "feedback", user: "razan.vlogs", face: "كل احتياجاتك التقنية في مكان واحد", cap: "@SandsTech", stat: "♥", shot: "store" },
+      { k: "fb", board: "feedback", user: "sara.techmood", sub: "تعليق", cap: "التوصيل تأخر يوم واحد، لكن الخدمة ممتازة وتعويضهم كان رائع.", react: "6 comments", mild: true },
+      { k: "story", board: "feedback", user: "moh.technology", text: "Thanks @SandsTech. Best store in Jordan.", bg: "linear-gradient(165deg,#0f766e,#f97316)" },
+      { k: "ig", board: "feedback", user: "ibrahim.khlf", sub: "صورة الجهاز", cap: "", shot: "phone", label: "PHONE" },
+      { k: "ig", board: "feedback", user: "sama.jo", sub: "Watch", cap: "My New Watch @SandsTech. أحسن الأسعار وأصلي. شكراً SandsTech.", stat: "520 likes", shot: "watch", label: "WATCH" },
+      { k: "fb", board: "feedback", user: "Huda Nassar", sub: "Sands Tech Store · سؤال", cap: "ممكن استفسار، هل يوجد ألوان أخرى لهذا اللابتوب؟ وشكراً.", react: "8 comments", mild: true },
+      { k: "fb", board: "feedback", user: "Tech Deals Jordan", sub: "SandsTech", cap: "SandsTech always comes with the best offers in Jordan. Check their latest collection.", react: "4.3K" },
+      { k: "ig", board: "feedback", user: "yousef.setup", sub: "Setup", cap: "Setup completed with products from @SandsTech.", stat: "230", shot: "setup", label: "SETUP" },
+      { k: "fb", board: "feedback", user: "Sara Mahmoud", sub: "منذ يومين", cap: "التوصيل تأخر يوم واحد لكن الخدمة ممتازة وتعويضهم كان رائع.", react: "6 comments", mild: true },
+
+      { k: "ig", board: "love", user: "jana.kaylani", sub: "Amman, Jordan", cap: "أجمل تجربة شراء من @SandsTech. تغليف أصلي وخدمة التوصيل سريعة والتعامل راقي جداً. شكراً لكم.", shot: "laptop", label: "LAPTOP" },
+      { k: "fb", board: "love", user: "Mahmoud Taha", sub: "Sands Tech Store · منذ يوم", cap: "وصلني الجهاز اليوم ما شاء الله. تغليف ممتاز وخدمة احترافية. Sands Tech دائماً على المستوى.", react: "1.2K · 87 comments · 14 shares", shot: "ps5", label: "PS5" },
+      { k: "story", board: "love", user: "sara.hisham", text: "New Laptop. New Journey. @SandsTech. Best Store in Jordan.", bg: "linear-gradient(165deg,#1e3a8a,#93c5fd)" },
+      { k: "google", board: "love", store: true, rating: "4.9", count: "2,864 reviews", place: "Electronics store · Amman", reviews: [
+        { user: "Lina Abu Salameh", when: "منذ أسبوعين", stars: 5, cap: "منتجات أصلية وأسعار ممتازة والطاقم جداً متعاونين. أنصح الجميع بالتعامل معهم." },
+        { user: "Omar Khaled", when: "منذ شهر", stars: 5, cap: "أفضل متجر للأجهزة التقنية في الأردن. خدمة ما بعد البيع رائعة والتوصيل سريع." }
+      ]},
+      { k: "ig", board: "love", user: "tech.with.fadi", sub: "Unboxing", cap: "Unboxing iPhone 15 Pro @SandsTech", shot: "phone", label: "IPHONE" },
+      { k: "tt", board: "love", user: "nour.tech", face: "My new tablet from @SandsTech. Love it!", cap: "أفضل متجر في الأردن @SandsTech #Tablet #Unboxing", stat: "62.4K", shot: "tablet" },
+      { k: "x", board: "love", user: "AhmedS_JO", cap: "متجر رائع وتشكيلة كبيرة من اللابتوبات والاكسسوارات. التعامل ممتاز. @SandsTech", stat: "4.2K" },
+      { k: "ig", board: "love", user: "reem.alnssur", sub: "منذ 5 ساعات", cap: "وصل الطلب والتغليف ممتاز جداً. @SandsTech", shot: "bag", label: "UNBOX" },
+      { k: "wa", board: "love", title: "Sands Tech Support", status: "online", messages: [
+        { me: false, text: "مرحبا، أريد الاستفسار عن توفر PS5 وهل يوجد لون أسود؟", time: "10:12 AM" },
+        { me: true, text: "أهلاً وسهلاً. نعم متوفر حالياً مع ضمان سنة كاملة.", time: "10:13 AM" },
+        { me: false, text: "متى التوصيل إلى إربد؟", time: "10:14 AM" },
+        { me: true, text: "التوصيل خلال 1-2 يوم وسنرسل لك رقم التتبع.", time: "10:15 AM" }
+      ]},
+      { k: "fb", board: "love", user: "Razan Al-Khatib", sub: "Sands Tech Store", cap: "تجميعة رائعة من SandsTech. أداء ممتاز وخدمة تركيب احترافية. شكراً للفريق.", react: "876 · 48 comments · 6 shares", shot: "setup", label: "SETUP" },
+      { k: "x", board: "love", user: "TechWorldJO", cap: "Just received my gaming setup from @SandsTech. Everything works perfectly! Great service and fast delivery.", stat: "203 · 3.1K", shot: "setup", label: "SETUP" },
+      { k: "story", board: "love", user: "yousef.hassan", text: "Thanks @SandsTech. Original Products.", bg: "linear-gradient(165deg,#14532d,#86efac)", dark: true },
+      { k: "google", board: "love", store: true, rating: "5.0", count: "1,921 reviews", place: "Sands Tech Store · Reviews", reviews: [
+        { user: "Nada Qasem", when: "منذ 3 أسابيع", stars: 5, cap: "خدمة ممتازة ومنتجات أصلية والأسعار منافسة جداً. فريق العمل محترم ومتعاون." }
+      ]},
+      { k: "tt", board: "love", user: "ahmad.vlogs", face: "My new DJI Camera. Recommended!", stat: "48.2K", shot: "camera" },
+      { k: "ig", board: "love", user: "mariam.jo", sub: "أجهزتي", cap: "كل أجهزتي من @SandsTech. جودة عالية وتغليف أنيق.", stat: "1,022", shot: "phone", label: "DEVICES" },
+      { k: "fb", board: "love", user: "Khana Nassar", sub: "Sands Tech Store", cap: "اشتريت لابتوب للدراسة من SandsTech. الجهاز ممتاز والسعر مناسب والتوصيل كان أسرع مما توقعت. شكراً لكم.", react: "654 · 21 comments · 3 shares", shot: "laptop", label: "LAPTOP" },
+      { k: "fb", board: "love", user: "nawaf.jo", sub: "سؤال", cap: "هل متوفر هذا الموديل حالياً؟ وهل يمكن الحجز؟", mild: true },
+      { k: "google", board: "love", user: "Sami Ibrahem", when: "منذ أسبوع", stars: 5, cap: "التوصيل كان فيه تأخير عن المتوقع، لكن تم التواصل معهم وتم حل المشكلة. شكراً على المتابعة.", mild: true },
+      { k: "story", board: "love", user: "farah.tech", text: "New Phone from @SandsTech. Perfect.", bg: "linear-gradient(165deg,#9d174d,#fb7185)" },
+      { k: "fb", board: "love", user: "Loai Qudah", sub: "Sands Tech Store · منذ يومين", cap: "متجر مرتب وخيارات واسعة. الخدمة الرائعة والتعامل الراقي والأسعار ممتازة.", react: "472 · 18 comments · 4 shares", shot: "store", label: "STORE" },
+      { k: "ig", board: "love", user: "rana.tech", sub: "منذ 6 ساعات", cap: "شكراً SandsTech على الخدمة الرائعة والتعامل السريع. التجربة كانت ممتازة.", stat: "2.1K", shot: "phone", label: "THANKS" },
+      { k: "story", board: "love", user: "ahmad.stories", text: "Another Happy Customer @SandsTech", bg: "linear-gradient(165deg,#b45309,#fde68a)", dark: true },
+      { k: "wa", board: "love", title: "Customer Support", status: "last seen recently", messages: [
+        { me: false, text: "هل يوجد عرض على السماعات؟", time: "11:40 AM" },
+        { me: true, text: "نعم حالياً عندنا عرض، بس ما بنفع نجمعه مع عرض ثاني.", time: "11:41 AM" },
+        { me: false, text: "شكراً على سرعة الرد.", time: "11:42 AM" }
+      ]},
+      { k: "fb", board: "love", user: "nawaf.jo", sub: "منذ يوم", cap: "اللابتوب تأخر أسبوعين! وهل يمكن الحجز؟", mild: true },
+      { k: "tt", board: "love", user: "laila.tech", face: "Amazing Service @SandsTech. Very Happy!", stat: "17.1K", shot: "store" }
+    ];
+
+    var state = { board: "all", plat: "all", q: "" };
+
+    function esc(s) {
+      return String(s == null ? "" : s).replace(/[&<>]/g, function (c) {
+        return { "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c];
+      });
+    }
+    function stars(n) {
+      return "★★★★★".slice(0, n) + "☆☆☆☆☆".slice(n);
+    }
+    function initial(name) {
+      return String(name || "?").replace(/^@/, "").charAt(0).toUpperCase();
+    }
+    function isLatin(name) {
+      return /[A-Za-z@]/.test(String(name || ""));
+    }
+    function d(text) {
+      var s = String(text || "");
+      var ar = (s.match(/[\u0600-\u06FF]/g) || []).length;
+      var lat = (s.match(/[A-Za-z]/g) || []).length;
+      return lat > ar ? " ltr" : "";
+    }
+    function hueOf(name) {
+      var h = 0;
+      var s = String(name || "");
+      for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+      return "hsl(" + (h % 360) + " 55% 38%)";
+    }
+    function blob(c) {
+      var bits = [c.user, c.sub, c.cap, c.text, c.face, c.title, c.stat, c.react, c.place, c.when];
+      if (c.messages) c.messages.forEach(function (m) { bits.push(m.text, m.time); });
+      if (c.reviews) c.reviews.forEach(function (r) { bits.push(r.user, r.cap, r.when); });
+      return bits.join(" ").toLowerCase();
+    }
+    function src(board) {
+      return '<span class="src src-' + board + '">' + esc(BOARD_NAME[board]) + "</span>";
+    }
+    function head(c, name, sub) {
+      var dir = isLatin(name) ? " ltr" : "";
+      return '<div class="hd"><div class="ava" style="background:' + hueOf(name) + '">' + esc(initial(name)) + '</div><div><div class="who' + dir + '">' + esc(name) + '</div><div class="sub">' + esc(sub || "") + " " + src(c.board) + "</div></div></div>";
+    }
+    function shot(c) {
+      if (!c.shot && !c.label) return "";
+      var bg = HUE[c.shot] || HUE.store;
+      return '<div class="shot" style="background:' + bg + '">' + (c.label ? "<span>" + esc(c.label) + "</span>" : "") + "</div>";
+    }
+    function card(c) {
+      var mild = c.mild ? " mild" : "";
+      if (c.k === "ig") {
+        return '<article class="card ig' + mild + '">' + head(c, "@" + c.user, c.sub) + shot(c) +
+          (c.cap ? '<p class="cap' + d(c.cap) + '">' + esc(c.cap) + "</p>" : "") + (c.stat ? '<div class="stat' + d(c.stat) + '">' + esc(c.stat) + "</div>" : "") + "</article>";
+      }
+      if (c.k === "story") {
+        var color = c.dark ? "#1c1917" : "white";
+        return '<article class="card' + mild + '" style="background:transparent"><div class="story" style="background:' + c.bg + ";color:" + color + '"><div><div class="who ltr">@' + esc(c.user) + '</div><div class="sub" style="color:inherit;opacity:.8">' + src(c.board) + '</div></div><p class="' + d(c.text).trim() + '">' + esc(c.text) + '</p><div class="pill ltr">Story Mention</div></div></article>';
+      }
+      if (c.k === "fb") {
+        return '<article class="card fb' + mild + '">' + head(c, c.user, c.sub) + shot(c) +
+          '<p class="cap' + d(c.cap) + '">' + esc(c.cap) + "</p>" + (c.react ? '<div class="react' + d(String(c.react)) + '">👍 ' + esc(c.react) + "</div>" : "") + "</article>";
+      }
+      if (c.k === "google" && c.store) {
+        var reviews = c.reviews.map(function (r) {
+          return '<div class="review"><div class="who' + (isLatin(r.user) ? " ltr" : "") + '">' + esc(r.user) + '</div><div class="sub">' + esc(r.when || "") + '</div><div class="stars">' + stars(r.stars) + '</div><p class="cap' + d(r.cap) + '">' + esc(r.cap) + "</p></div>";
+        }).join("");
+        return '<article class="card' + mild + '"><div class="store-top"><div><div class="who">Sands Tech Store</div><div class="sub ltr">' + esc(c.place) + "</div></div><div class=\"rating ltr\">" + esc(c.rating) + '</div></div><div class="sub" style="padding:0 10px">' + esc(c.count) + " " + src(c.board) + "</div>" + reviews + "</article>";
+      }
+      if (c.k === "google") {
+        return '<article class="card' + mild + '"><div class="ghead"><span>Google Review ' + src(c.board) + '</span><span class="ltr">' + c.stars.toFixed(1) + '</span></div>' +
+          '<div class="hd"><div><div class="who' + (isLatin(c.user) ? " ltr" : "") + '">' + esc(c.user) + '</div><div class="sub">' + esc(c.when || "") + '</div><div class="stars">' + stars(c.stars) + "</div></div></div><p class=\"cap" + d(c.cap) + "\">" + esc(c.cap) + "</p></article>";
+      }
+      if (c.k === "x") {
+        return '<article class="card xcard' + mild + '">' + head(c, "@" + c.user, "X") + shot(c) +
+          '<p class="cap' + d(c.cap) + '">' + esc(c.cap) + "</p>" + (c.stat ? '<div class="stat ltr">' + esc(c.stat) + "</div>" : "") + "</article>";
+      }
+      if (c.k === "tt") {
+        var bg = HUE[c.shot] || "#111";
+        return '<article class="card' + mild + '"><div class="tt-face" style="background:' + bg + '"><div class="tt-side">♥<br>' + esc(c.stat || "") + '</div><div><div class="who ltr">@' + esc(c.user) + '</div><div class="sub" style="color:#fff">' + src(c.board) + '</div><p class="' + d(c.face).trim() + '">' + esc(c.face) + "</p></div></div>" +
+          (c.cap ? '<p class="cap' + d(c.cap) + '">' + esc(c.cap) + "</p>" : "") + "</article>";
+      }
+      if (c.k === "wa") {
+        var bubbles = c.messages.map(function (m) {
+          return '<div class="bub' + (m.me ? " me" : "") + d(m.text) + '">' + esc(m.text) + '<time class="ltr">' + esc(m.time) + "</time></div>";
+        }).join("");
+        return '<article class="card wa' + mild + '"><div class="bar-wa">' + esc(c.title) + "<small>" + esc(c.status) + " · " + BOARD_NAME[c.board] + "</small></div>" + bubbles + "</article>";
+      }
+      return '<article class="card wiki"><h3>' + esc(c.title) + " " + src(c.board) + '</h3><p class="cap' + d(c.cap) + '">' + esc(c.cap) + "</p></article>";
+    }
+
+    function matchBoard(c) {
+      if (state.board !== "all" && c.board !== state.board) return false;
+      if (state.q && blob(c).indexOf(state.q) === -1) return false;
+      return true;
+    }
+    function match(c) {
+      if (!matchBoard(c)) return false;
+      if (state.plat !== "all" && c.k !== state.plat) return false;
+      return true;
+    }
+
+    function inSearch(c) {
+      return !state.q || blob(c).indexOf(state.q) !== -1;
+    }
+    function chips(host, items, key) {
+      host.innerHTML = items.map(function (item) {
+        var n = cards.filter(function (c) {
+          if (!inSearch(c)) return false;
+          if (key === "board") {
+            if (state.plat !== "all" && c.k !== state.plat) return false;
+            return item.k === "all" || c.board === item.k;
+          }
+          if (state.board !== "all" && c.board !== state.board) return false;
+          return item.k === "all" || c.k === item.k;
+        }).length;
+        var on = state[key] === item.k;
+        return '<button type="button" class="chip" data-key="' + key + '" data-val="' + item.k + '" aria-pressed="' + on + '">' + esc(item.t) + " <b>" + n + "</b></button>";
+      }).join("");
+    }
+
+    function render() {
+      var list = cards.filter(match);
+      document.getElementById("wall").innerHTML = list.length
+        ? list.map(card).join("")
+        : '<p class="empty">ما في بطاقات بهالبحث. جرّب لوحة ثانية أو امسح الكلمة.</p>';
+      var scope = cards.filter(matchBoard).length;
+      document.getElementById("count").textContent = list.length + " بطاقة ظاهرة" + (state.q || state.board !== "all" || state.plat !== "all" ? " من " + cards.length : "");
+      chips(document.getElementById("boardChips"), BOARDS, "board");
+      chips(document.getElementById("platChips"), PLATS, "plat");
+      ["wall", "feedback", "love"].forEach(function (b) {
+        document.getElementById("pole-" + b).classList.toggle("is-on", state.board === b);
+      });
+      void scope;
+    }
+
+    document.getElementById("boardChips").addEventListener("click", onChip);
+    document.getElementById("platChips").addEventListener("click", onChip);
+    function onChip(e) {
+      var b = e.target.closest("button");
+      if (!b) return;
+      state[b.dataset.key] = b.dataset.val;
+      render();
+    }
+    document.getElementById("reset").addEventListener("click", function () {
+      state.board = "all";
+      state.plat = "all";
+      state.q = "";
+      render();
+    });
+    document.querySelectorAll("[data-board]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        state.board = btn.dataset.board;
+        state.plat = "all";
+        render();
+        document.getElementById("wall").scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    });
+    var box = document.getElementById("lightbox");
+    document.querySelectorAll("[data-zoom]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var img = document.getElementById("lightboxImg");
+        img.src = btn.dataset.zoom;
+        img.alt = btn.dataset.alt || "";
+        box.showModal();
+      });
+    });
+    box.addEventListener("click", function (e) {
+      if (e.target === box) box.close();
+    });
+
+    render();
+  </script>
+</body>
+</html>
